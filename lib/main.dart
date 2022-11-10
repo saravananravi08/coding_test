@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -6,65 +7,125 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  String text = 'in process';
-
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    CarouselController controller = CarouselController();
+    TabController tabController = TabController(length: 2, vsync: this);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You test is $text',
-              style: const TextStyle(fontSize: 20),
+      body: ListView(
+        children: [
+          Container(
+            color: Colors.green,
+            height: 200,
+            width: double.infinity,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            height: 80,
+            child: TabBar(
+              onTap: (i) {
+                controller.animateToPage(i);
+              },
+              controller: tabController,
+              tabs: const [
+                Tab(
+                  child: Text(
+                    'Tab1',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                Tab(
+                  child: InkWell(
+                    child: Text(
+                      'Tab2',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          CarouselSlider(
+            carouselController: controller,
+            options: CarouselOptions(
+              //height: 400,
+              aspectRatio: 9 / 16,
+              viewportFraction: 1,
+              initialPage: 0,
+              enableInfiniteScroll: false,
+              reverse: false,
+              autoPlay: false,
+              autoPlayAnimationDuration: const Duration(milliseconds: 800),
+              autoPlayCurve: Curves.fastOutSlowIn,
+              enlargeCenterPage: false,
+              onPageChanged: (i, r) {
+                tabController.animateTo(i);
+              },
+              scrollDirection: Axis.horizontal,
+            ),
+            items: [
+              ListView(
+                shrinkWrap: false,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 1000,
+                    color: Colors.yellow,
+                    child: const Center(
+                      child: Text(
+                        'tab1',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              ListView(
+                shrinkWrap: false,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 1000,
+                    color: Colors.orange,
+                    child: const Center(
+                      child: Text(
+                        'tab1',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          )
+        ],
       ),
-      floatingActionButton: const FloatingButton(),
-    );
-  }
-}
-
-class FloatingButton extends StatefulWidget {
-  const FloatingButton({Key? key}) : super(key: key);
-
-  @override
-  State<FloatingButton> createState() => _FloatingButtonState();
-}
-
-class _FloatingButtonState extends State<FloatingButton> {
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {},
-      child: const Icon(Icons.add),
     );
   }
 }
